@@ -8,6 +8,8 @@ con.addListener('connected', function () {
       sys.puts(attr + ' : ' + result[attr]);
     }
   });
-  con.query('216.236.135.152');
+  var ip = '216.236.135.152';
+  sys.puts('Looking up ip: ' + ip + '...\n');
+  con.query(ip);
 });
 con.connect('/usr/local/share/GeoIP/GeoLiteCity.dat');

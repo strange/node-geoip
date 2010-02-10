@@ -3,7 +3,9 @@ var sys = require('sys'),
 
 con = new geoip.Connection('/usr/local/share/GeoIP/GeoLiteCity.dat');
 
-con.query('216.236.135.152').addCallback(function (result) {
+var ip = '216.236.135.152';
+sys.puts('Looking up ip: ' + ip + '...\n');
+con.query(ip).addCallback(function (result) {
   for (var attr in result) {
     sys.puts(attr + ' : ' + result[attr]);
   }
