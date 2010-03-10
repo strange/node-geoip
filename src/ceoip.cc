@@ -1,3 +1,4 @@
+// Copyright 2010 Gustaf Sjöberg <gs@distrop.com>
 #include <GeoIP.h>
 #include <GeoIPCity.h>
 
@@ -17,8 +18,7 @@ static Persistent<String> result_symbol;
 class Connection : public EventEmitter {
   public:
     static void
-    Initialize (v8::Handle<v8::Object> target)
-    {
+    Initialize(v8::Handle<v8::Object> target) {
       Local<FunctionTemplate> t = FunctionTemplate::New(Connection::New);
       t->Inherit(EventEmitter::constructor_template);
       t->InstanceTemplate()->SetInternalFieldCount(1);
@@ -35,8 +35,7 @@ class Connection : public EventEmitter {
       target->Set(String::NewSymbol("Connection"), t->GetFunction());
     }
 
-    void Connect(const char *dbpath)
-    {
+    void Connect(const char *dbpath) {
       HandleScope scope;
 
       gi = GeoIP_open(dbpath, GEOIP_INDEX_CACHE);
@@ -44,8 +43,7 @@ class Connection : public EventEmitter {
       Emit((gi ? connected_symbol : error_symbol), 0, NULL);
     }
 
-    void Close()
-    {
+    void Close() {
       HandleScope scope;
 
       if (gi != NULL) {
@@ -56,8 +54,7 @@ class Connection : public EventEmitter {
       Emit(closed_symbol, 0, NULL);
     }
 
-    void Query(const char *query)
-    {
+    void Query(const char *query) {
       HandleScope scope;
 
       assert(gi);
@@ -73,10 +70,9 @@ class Connection : public EventEmitter {
         Emit(result_symbol, 0, NULL);
       }
     }
-  
+
   protected:
-    static Handle<Value> New(const Arguments& args)
-    {
+    static Handle<Value> New(const Arguments& args) {
       HandleScope scope;
 
       Connection *connection = new Connection();
@@ -85,8 +81,7 @@ class Connection : public EventEmitter {
       return args.This();
     }
 
-    static Handle<Value> Connect(const Arguments &args)
-    {
+    static Handle<Value> Connect(const Arguments &args) {
       HandleScope scope;
 
       if (args.Length() < 1 || !args[0]->IsString()) {
@@ -103,8 +98,7 @@ class Connection : public EventEmitter {
       return Undefined();
     }
 
-    static Handle<Value> Close(const Arguments &args)
-    {
+    static Handle<Value> Close(const Arguments &args) {
       HandleScope scope;
 
       Connection *connection = ObjectWrap::Unwrap<Connection>(args.This());
@@ -113,8 +107,7 @@ class Connection : public EventEmitter {
       return Undefined();
     }
 
-    static Handle<Value> Query(const Arguments &args)
-    {
+    static Handle<Value> Query(const Arguments &args) {
       HandleScope scope;
 
       if (args.Length() < 1 || !args[0]->IsString()) {
@@ -127,13 +120,12 @@ class Connection : public EventEmitter {
 
       Connection *connection = ObjectWrap::Unwrap<Connection>(args.This());
       connection->Query(*query);
-      
+
       return Undefined();
     }
 
   private:
-    Local<Value>BuildResult(GeoIPRecord *record)
-    {
+    Local<Value>BuildResult(GeoIPRecord *record) {
       HandleScope scope;
 
       Local<Array> result = Array::New(8);
@@ -157,8 +149,7 @@ class Connection : public EventEmitter {
 };
 
 extern "C" void
-init (Handle<Object> target) 
-{
+init(Handle<Object> target) {
   HandleScope scope;
   Connection::Initialize(target);
 }
