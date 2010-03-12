@@ -19,6 +19,7 @@ class Connection : public EventEmitter {
   public:
     static void
     Initialize(v8::Handle<v8::Object> target) {
+      printf("here");
       Local<FunctionTemplate> t = FunctionTemplate::New(Connection::New);
       t->Inherit(EventEmitter::constructor_template);
       t->InstanceTemplate()->SetInternalFieldCount(1);
@@ -61,7 +62,6 @@ class Connection : public EventEmitter {
       GeoIPRecord *record;
       record = GeoIP_record_by_addr(gi, query);
 
-
       if (record) {
         Local<Value> result = BuildResult(record);
         GeoIPRecord_delete(record);
@@ -69,6 +69,7 @@ class Connection : public EventEmitter {
       } else {
         Emit(result_symbol, 0, NULL);
       }
+      Emit(result_symbol, 0, NULL);
     }
 
   protected:
@@ -130,17 +131,54 @@ class Connection : public EventEmitter {
 
       Local<Array> result = Array::New(8);
 
-      result->Set(String::New("longitude"), Number::New(record->longitude));
-      result->Set(String::New("latitude"), Number::New(record->latitude));
-      result->Set(String::New("country_code"),
-          String::New(record->country_code));
-      result->Set(String::New("continent_code"),
-          String::New(record->continent_code));
-      result->Set(String::New("metro_code"),
-          Number::New(record->metro_code));
-      result->Set(String::New("country"), String::New(record->country_name));
-      result->Set(String::New("city"), String::New(record->city));
-      result->Set(String::New("area_code"), Number::New(record->area_code));
+      if (record->longitude != NULL) {
+        result->Set(
+          String::New("longitude"),
+          Number::New(record->longitude)
+        );
+      }
+      if (record->latitude != NULL) {
+        result->Set(
+          String::New("latitude"),
+          Number::New(record->latitude)
+        );
+      }
+      if (record->country_code != NULL) {
+        result->Set(
+          String::New("country_code"),
+          String::New(record->country_code)
+        );
+      }
+      if (record->continent_code != NULL) {
+        result->Set(
+          String::New("continent_code"),
+          String::New(record->continent_code)
+        );
+      }
+      if (record->metro_code != NULL) {
+        result->Set(
+          String::New("metro_code"),
+          Number::New(record->metro_code)
+        );
+      }
+      if (record->country_name != NULL) {
+        result->Set(
+          String::New("country"),
+          String::New(record->country_name)
+        );
+      }
+      if (record->city != NULL) {
+        result->Set(
+          String::New("city"),
+          String::New(record->city)
+        );
+      }
+      if (record->area_code != NULL) {
+        result->Set(
+          String::New("area_code"),
+          Number::New(record->area_code)
+        );
+      }
 
       return scope.Close(result);
     }
