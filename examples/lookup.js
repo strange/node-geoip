@@ -9,8 +9,6 @@ con.addListener('connected', function () {
     }
   });
   var ip = '216.236.135.152';
-  var ip = '207.46.199.189';
-  var ip = '207.46.0.1';
   sys.puts('Looking up ip: ' + ip + '...\n');
   con.query(ip);
 });

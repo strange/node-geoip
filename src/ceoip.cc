@@ -19,7 +19,6 @@ class Connection : public EventEmitter {
   public:
     static void
     Initialize(v8::Handle<v8::Object> target) {
-      printf("here");
       Local<FunctionTemplate> t = FunctionTemplate::New(Connection::New);
       t->Inherit(EventEmitter::constructor_template);
       t->InstanceTemplate()->SetInternalFieldCount(1);
@@ -69,7 +68,6 @@ class Connection : public EventEmitter {
       } else {
         Emit(result_symbol, 0, NULL);
       }
-      Emit(result_symbol, 0, NULL);
     }
 
   protected:
@@ -129,7 +127,7 @@ class Connection : public EventEmitter {
     Local<Value>BuildResult(GeoIPRecord *record) {
       HandleScope scope;
 
-      Local<Array> result = Array::New(8);
+      Local<Array> result = Array::New();
 
       if (record->longitude != NULL) {
         result->Set(
