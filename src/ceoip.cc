@@ -168,6 +168,12 @@ class Connection : public EventEmitter {
           String::New(record->continent_code)
         );
       }
+      if (record->region != NULL) {
+        result->Set(
+          String::New("region"),
+          String::New(record->region)
+        );
+      }
       if (record->metro_code != NULL) {
         result->Set(
           String::New("metro_code"),
