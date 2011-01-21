@@ -177,6 +177,12 @@ class Connection : public EventEmitter {
           Number::New(record->area_code)
         );
       }
+      if (record->region != NULL) {
+        result->Set(
+          String::New("region"),
+          String::New(record->region)
+        );
+      }
 
       return scope.Close(result);
     }
