@@ -32,13 +32,22 @@ class Connection : public EventEmitter {
       NODE_SET_PROTOTYPE_METHOD(t, "close", Close);
       NODE_SET_PROTOTYPE_METHOD(t, "query", Query);
 
+      NODE_DEFINE_CONSTANT(target, GEOIP_STANDARD);
+      NODE_DEFINE_CONSTANT(target, GEOIP_MEMORY_CACHE);
+      NODE_DEFINE_CONSTANT(target, GEOIP_CHECK_CACHE);
+      NODE_DEFINE_CONSTANT(target, GEOIP_INDEX_CACHE);
+      NODE_DEFINE_CONSTANT(target, GEOIP_MMAP_CACHE);
+
       target->Set(String::NewSymbol("Connection"), t->GetFunction());
     }
 
-    void Connect(const char *dbpath) {
+    void Connect(const char *dbpath, int db_opts_bitmask) {
       HandleScope scope;
 
-      gi = GeoIP_open(dbpath, GEOIP_INDEX_CACHE);
+      if(db_opts_bitmask == 0){
+        db_opts_bitmask = 0 | GEOIP_STANDARD;
+      }
+      gi = GeoIP_open(dbpath, db_opts_bitmask);
 
       Emit((gi ? connected_symbol : error_symbol), 0, NULL);
     }
@@ -88,11 +97,17 @@ class Connection : public EventEmitter {
                 Exception::TypeError(
                     String::New("Required argument: path to database.")));
       }
+      if (args.Length() == 2 && !args[1]->IsNumber()){
+        return ThrowException(
+          Exception::TypeError(
+            String::New("Second argument must be a bitmask")));
+      }
 
       String::Utf8Value dbpath(args[0]->ToString());
 
+
       Connection *connection = ObjectWrap::Unwrap<Connection>(args.This());
-      connection->Connect(*dbpath);
+      connection->Connect(*dbpath, args[1]->ToUint32()->Value());
 
       return Undefined();
     }
