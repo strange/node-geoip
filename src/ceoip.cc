@@ -143,8 +143,11 @@ class Connection : public EventEmitter {
 
   private:
 
+#ifndef ICONV_SRC_CONST
+#define ICONV_SRC_CONST
+#endif
 #define icv(a,b,blen) do { \
-  char *in = a; \
+  ICONV_SRC_CONST char *in = a; \
   char *out = b; \
   size_t inlen = strlen(a); \
   size_t outlen = blen; \
