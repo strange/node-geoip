@@ -6,6 +6,7 @@
 #include <node.h>
 #include <node_events.h>
 #include <assert.h>
+#include <iconv.h>
 
 using namespace v8;
 using namespace node;
@@ -14,6 +15,7 @@ static Persistent<String> connected_symbol;
 static Persistent<String> closed_symbol;
 static Persistent<String> error_symbol;
 static Persistent<String> result_symbol;
+static iconv_t cd;
 
 class Connection : public EventEmitter {
   public:
@@ -23,6 +25,7 @@ class Connection : public EventEmitter {
       t->Inherit(EventEmitter::constructor_template);
       t->InstanceTemplate()->SetInternalFieldCount(1);
 
+      cd = iconv_open("utf-8", "ISO-8859-1");
       closed_symbol = NODE_PSYMBOL("closed");
       connected_symbol = NODE_PSYMBOL("connected");
       error_symbol = NODE_PSYMBOL("error");
@@ -139,18 +142,28 @@ class Connection : public EventEmitter {
     }
 
   private:
+
+#define icv(a,b,blen) do { \
+  char *in = a; \
+  char *out = b; \
+  size_t inlen = strlen(a); \
+  size_t outlen = blen; \
+  if(iconv(cd, &in, &inlen, &out, &outlen) == -1) b[0] = '\0'; \
+} while(0)
+
     Local<Value>BuildResult(GeoIPRecord *record) {
       HandleScope scope;
+      char outputbuff[1024];
 
       Local<Array> result = Array::New();
 
-      if (record->longitude != NULL) {
+      if (record->longitude != (int)NULL) {
         result->Set(
           String::New("longitude"),
           Number::New(record->longitude)
         );
       }
-      if (record->latitude != NULL) {
+      if (record->latitude != (int)NULL) {
         result->Set(
           String::New("latitude"),
           Number::New(record->latitude)
@@ -169,30 +182,33 @@ class Connection : public EventEmitter {
         );
       }
       if (record->region != NULL) {
+        icv(record->region, outputbuff, sizeof(outputbuff));
         result->Set(
           String::New("region"),
-          String::New(record->region)
+          String::New(outputbuff)
         );
       }
-      if (record->metro_code != NULL) {
+      if (record->metro_code != (int)NULL) {
         result->Set(
           String::New("metro_code"),
           Number::New(record->metro_code)
         );
       }
       if (record->country_name != NULL) {
+        icv(record->country_name, outputbuff, sizeof(outputbuff));
         result->Set(
           String::New("country"),
-          String::New(record->country_name)
+          String::New(outputbuff)
         );
       }
       if (record->city != NULL) {
+        icv(record->city, outputbuff, sizeof(outputbuff));
         result->Set(
           String::New("city"),
-          String::New(record->city)
+          String::New(outputbuff)
         );
       }
-      if (record->area_code != NULL) {
+      if (record->area_code != (int)NULL) {
         result->Set(
           String::New("area_code"),
           Number::New(record->area_code)
