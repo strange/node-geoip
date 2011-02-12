@@ -152,6 +152,7 @@ class Connection : public EventEmitter {
   size_t inlen = strlen(a); \
   size_t outlen = blen; \
   if(iconv(cd, &in, &inlen, &out, &outlen) == -1) b[0] = '\0'; \
+  else *out = '\0'; \
 } while(0)
 
     Local<Value>BuildResult(GeoIPRecord *record) {
