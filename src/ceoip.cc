@@ -185,13 +185,6 @@ class Connection : public EventEmitter {
           String::New(record->continent_code)
         );
       }
-      if (record->region != NULL) {
-        icv(record->region, outputbuff, sizeof(outputbuff));
-        result->Set(
-          String::New("region"),
-          String::New(outputbuff)
-        );
-      }
       if (record->metro_code != (int)NULL) {
         result->Set(
           String::New("metro_code"),
@@ -219,9 +212,10 @@ class Connection : public EventEmitter {
         );
       }
       if (record->region != NULL) {
+        icv(record->region, outputbuff, sizeof(outputbuff));
         result->Set(
           String::New("region"),
-          String::New(record->region)
+          String::New(outputbuff)
         );
       }
 
