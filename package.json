@@ -1,0 +1,17 @@
+{
+  "author": "strange (https://github.com/strange)",
+  "name": "geoip",
+  "description": "Geoip for node",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/postwait/node-geoip.git"
+  },
+  "main": "./lib/geoip",
+  "engines": {
+    "node": ">0.4.0"
+  },
+  "script":{"install": "node-waf configure build"},
+  "dependencies": {},
+  "devDependencies": {}
+}
