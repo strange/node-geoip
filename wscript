@@ -1,4 +1,5 @@
 import os
+import sys
 
 srcdir = os.path.abspath('.')
 blddir = 'build'
