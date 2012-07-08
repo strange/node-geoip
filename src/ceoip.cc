@@ -4,7 +4,6 @@
 
 #include <v8.h>
 #include <node.h>
-#include <node_events.h>
 #include <assert.h>
 #include <iconv.h>
 
@@ -17,13 +16,13 @@ static Persistent<String> error_symbol;
 static Persistent<String> result_symbol;
 static iconv_t cd;
 
-class Connection : public EventEmitter {
+class Connection : ObjectWrap {
   public:
     static void
     Initialize(v8::Handle<v8::Object> target) {
       Local<FunctionTemplate> t = FunctionTemplate::New(Connection::New);
-      t->Inherit(EventEmitter::constructor_template);
       t->InstanceTemplate()->SetInternalFieldCount(1);
+      t->SetClassName(String::New("ceoip.Connection"));
 
       cd = iconv_open("utf-8", "ISO-8859-1");
       closed_symbol = NODE_PSYMBOL("closed");
@@ -44,7 +43,7 @@ class Connection : public EventEmitter {
       target->Set(String::NewSymbol("Connection"), t->GetFunction());
     }
 
-    void Connect(const char *dbpath, int db_opts_bitmask) {
+    void Connect(const Arguments &args, const char *dbpath, int db_opts_bitmask) {
       HandleScope scope;
 
       if(db_opts_bitmask == 0){
@@ -52,21 +51,22 @@ class Connection : public EventEmitter {
       }
       gi = GeoIP_open(dbpath, db_opts_bitmask);
 
-      Emit((gi ? connected_symbol : error_symbol), 0, NULL);
+      Handle<Value> argv[1] = { gi ? connected_symbol : error_symbol };
+      MakeCallback(args.This(), "emit", 1, argv);
     }
 
-    void Close() {
+    void CloseHandle(const Arguments &args) {
       HandleScope scope;
 
       if (gi != NULL) {
         GeoIP_delete(gi);
         gi = NULL;
       }
-
-      Emit(closed_symbol, 0, NULL);
+      Handle<Value> argv[1] = { closed_symbol };
+      MakeCallback(args.This(), "emit", 1, argv);
     }
 
-    void Query(const char *query) {
+    void Query(const Arguments &args, const char *query) {
       HandleScope scope;
 
       assert(gi);
@@ -76,9 +76,11 @@ class Connection : public EventEmitter {
       if (record) {
         Local<Value> result = BuildResult(record);
         GeoIPRecord_delete(record);
-        Emit(result_symbol, 1, &result);
+        Handle<Value> argv[2] = { result_symbol, result };
+        MakeCallback(args.This(), "emit", 2, argv);
       } else {
-        Emit(result_symbol, 0, NULL);
+        Handle<Value> argv[1] = { result_symbol };
+        MakeCallback(args.This(), "emit", 1, argv);
       }
     }
 
@@ -110,7 +112,7 @@ class Connection : public EventEmitter {
 
 
       Connection *connection = ObjectWrap::Unwrap<Connection>(args.This());
-      connection->Connect(*dbpath, args[1]->ToUint32()->Value());
+      connection->Connect(args, *dbpath, args[1]->ToUint32()->Value());
 
       return Undefined();
     }
@@ -119,7 +121,7 @@ class Connection : public EventEmitter {
       HandleScope scope;
 
       Connection *connection = ObjectWrap::Unwrap<Connection>(args.This());
-      connection->Close();
+      connection->CloseHandle(args);
 
       return Undefined();
     }
@@ -136,7 +138,7 @@ class Connection : public EventEmitter {
       String::Utf8Value query(args[0]->ToString());
 
       Connection *connection = ObjectWrap::Unwrap<Connection>(args.This());
-      connection->Query(*query);
+      connection->Query(args, *query);
 
       return Undefined();
     }
