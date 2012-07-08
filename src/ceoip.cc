@@ -1,4 +1,5 @@
 // Copyright 2010 Gustaf Sjöberg <gs@distrop.com>
+// Copyright 2012 Circonus, Inc. All rights reserved.
 #include <GeoIP.h>
 #include <GeoIPCity.h>
 
