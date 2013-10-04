@@ -233,3 +233,5 @@ init(Handle<Object> target) {
   HandleScope scope;
   Connection::Initialize(target);
 }
+
+NODE_MODULE(ceoip, init)
