@@ -1,0 +1,17 @@
+{
+  "author": "strange (https://github.com/strange)",
+  "name": "geoip",
+  "description": "Geoip for node",
+  "version": "0.2.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/postwait/node-geoip.git"
+  },
+  "main": "./lib/geoip",
+  "engines": {
+    "node": ">0.10.0"
+  },
+  "script":{"install": "npm install"},
+  "dependencies": {},
+  "devDependencies": {}
+}

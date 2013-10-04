@@ -1,4 +1,5 @@
 import os
+import sys
 
 srcdir = os.path.abspath('.')
 blddir = 'build'
@@ -12,6 +13,8 @@ def configure(conf):
     conf.check_tool('compiler_cxx')
     conf.check_tool('node_addon')
     conf.check_cxx(lib='GeoIP', mandatory=True, uselib_store='GeoIP')
+    if not sys.platform.startswith("linux"):
+        conf.check_cxx(lib='iconv', mandatory=True, uselib_store='GeoIP')
 
 def build(context, target=target):
     obj = context.new_task_gen('cxx', 'shlib', 'node_addon')
